@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
+ <script src="/api.js"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -2002,13 +2002,7 @@
     var mockAdminUsers = [{ username: 'admin', fullname: 'Super Admin', role: 'Admin' }];
 
     // --- HELPERS ---
-    function gasRun(funcName) {
-      var args = Array.prototype.slice.call(arguments, 1);
-      return new Promise(function (resolve, reject) {
-        var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
-        runner[funcName].apply(runner, args);
-      });
-    }
+    
 
     function showFullPageLoading(msg) {
       var loader = document.getElementById('fullPageLoader'); if (!loader) return;
@@ -6081,7 +6075,7 @@
       }
     });
   </script>
-    <script src="/api.js"></script>
+   
 </body>
 
 </html>
