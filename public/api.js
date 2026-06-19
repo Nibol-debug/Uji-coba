@@ -4,7 +4,7 @@
 // ============================================================
 
 // WAJIB diisi dengan URL Apps Script /exec kamu
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/DEPLOYMENT_ID/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxp9G6StnK_PFlg-ueATSd58GHQ6uxkztjId_IVzuyC6XI0-SPlLwOoyUvPkcngXoW/exec';
 
 /**
  * Fungsi utama untuk call API Apps Script
