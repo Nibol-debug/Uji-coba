@@ -1,174 +1,112 @@
-// ============================================================
-// api.js — taruh di folder project Vercel
-// Ganti semua google.script.run dengan fungsi-fungsi ini
-// ============================================================
+// ==============================
+// CONFIG
+// ==============================
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysh9Vlj0NrOZHkB6SZTYzKJ8nUEolkHEqJoSCWvc4ATnyx1S4pGzG-RW2jqd-594ja/exec"; // contoh: https://script.google.com/macros/s/AKfycbxxx/exec
 
-// WAJIB diisi dengan URL Apps Script /exec kamu
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpsybYHfC12mXTk7aJJn84SYl-LvN0hDctwYpuEMBcxWuyzZpKbpAa_H3uhzhxVJOM/exec';
 
-/**
- * Fungsi utama untuk call API Apps Script
- * Menggantikan google.script.run
- */
-async function gasRun(action, params) {
-  var body = Object.assign({ action: action }, params || {});
-
-  var response = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    // Apps Script tidak support preflight CORS, pakai text/plain agar no-preflight
-    body: JSON.stringify(body)
-  });
-
-  var text = await response.text();
+// ==============================
+// CORE FETCH (ANTI CORS ERROR)
+// ==============================
+async function gasRun(action, data = {}) {
   try {
-    return JSON.parse(text);
-  } catch(e) {
-    throw new Error('Response bukan JSON: ' + text.substring(0, 200));
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: JSON.stringify({
+        action: action,
+        ...data
+      })
+    });
+
+    const text = await res.text();
+
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error("Response bukan JSON:", text);
+      throw new Error("Server error (bukan JSON)");
+    }
+
+  } catch (err) {
+    console.error("Fetch error:", err);
+    throw err;
   }
 }
 
-// ============================================================
-// WRAPPER FUNCTIONS — nama sama persis dengan sebelumnya
-// agar tidak perlu banyak ubah kode di Index.html
-// ============================================================
 
-function loginUser(username, password) {
-  return gasRun('loginUser', { username, password });
+// ==============================
+// AUTH
+// ==============================
+async function loginUser(username, password) {
+  return await gasRun("loginUser", { username, password });
 }
 
-function getDashboardData() {
-  return gasRun('getDashboardData', {});
+async function registerUser(data) {
+  return await gasRun("registerUser", data);
 }
 
-function getCategories() {
-  return gasRun('getCategories', {});
+
+// ==============================
+// DASHBOARD
+// ==============================
+async function getDashboard() {
+  return await gasRun("getDashboard");
 }
 
-function getSubCategories() {
-  return gasRun('getSubCategories', {});
+
+// ==============================
+// TICKET
+// ==============================
+async function createTicket(data) {
+  return await gasRun("createTicket", data);
 }
 
-function submitTicket(payload) {
-  return gasRun('submitTicket', { payload });
+async function getTickets(userId) {
+  return await gasRun("getTickets", { userId });
 }
 
-function updateTicketStatus(id, newStatus, catatan, updaterName, idDriver, currentUserRole) {
-  return gasRun('updateTicketStatus', { id, newStatus, catatan, updaterName, idDriver, currentUserRole });
+async function updateTicket(id, data) {
+  return await gasRun("updateTicket", { id, ...data });
 }
 
-function trackTicket(ticketId) {
-  return gasRun('trackTicket', { ticketId });
+async function deleteTicket(id) {
+  return await gasRun("deleteTicket", { id });
 }
 
-function getTicketDetail(ticketId) {
-  return gasRun('getTicketDetail', { ticketId });
+
+// ==============================
+// REQUEST
+// ==============================
+async function createRequest(data) {
+  return await gasRun("createRequest", data);
 }
 
-function saveCategory(payload, currentUserRole) {
-  return gasRun('saveCategory', { payload, currentUserRole });
+async function getRequests(userId) {
+  return await gasRun("getRequests", { userId });
 }
 
-function saveSubCategory(payload, currentUserRole) {
-  return gasRun('saveSubCategory', { payload, currentUserRole });
+
+// ==============================
+// UTILITY
+// ==============================
+function showLoading() {
+  Swal.fire({
+    title: "Loading...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
 }
 
-function deleteSubCategory(id, currentUserRole) {
-  return gasRun('deleteSubCategory', { id, currentUserRole });
+function hideLoading() {
+  Swal.close();
 }
 
-function getRequesters(currentUserRole) {
-  return gasRun('getRequesters', { currentUserRole });
+function showSuccess(msg) {
+  Swal.fire("Sukses", msg, "success");
 }
 
-function getAdminUsers(currentUserRole) {
-  return gasRun('getAdminUsers', { currentUserRole });
-}
-
-function saveAdminUser(payload, currentUserRole) {
-  return gasRun('saveAdminUser', { payload, currentUserRole });
-}
-
-function deleteAdminUser(username, currentUserRole) {
-  return gasRun('deleteAdminUser', { username, currentUserRole });
-}
-
-function getConfig() {
-  return gasRun('getConfig', {});
-}
-
-function saveConfig(payload, currentUserRole) {
-  return gasRun('saveConfig', { payload, currentUserRole });
-}
-
-function getTicketFields(subKategori) {
-  return gasRun('getTicketFields', { subKategori });
-}
-
-function getFormSettings(filterUnit, filterKategori) {
-  return gasRun('getFormSettings', { filterUnit, filterKategori });
-}
-
-function saveFormSetting(payload, adminName, currentUserRole) {
-  return gasRun('saveFormSetting', { payload, adminName, currentUserRole });
-}
-
-function deleteFormSetting(idSetting, adminName, currentUserRole) {
-  return gasRun('deleteFormSetting', { idSetting, adminName, currentUserRole });
-}
-
-function getRoomsData() {
-  return gasRun('getRoomsData', {});
-}
-
-function getVehiclesData() {
-  return gasRun('getVehiclesData', {});
-}
-
-function getDriversData() {
-  return gasRun('getDriversData', {});
-}
-
-function checkScheduleConflict(idRuangan, tgl, jamMulai, jamSelesai) {
-  return gasRun('checkScheduleConflict', { idRuangan, tgl, jamMulai, jamSelesai });
-}
-
-function checkVehicleConflict(idKendaraan, tgl, jamMulai, jamSelesai) {
-  return gasRun('checkVehicleConflict', { idKendaraan, tgl, jamMulai, jamSelesai });
-}
-
-function checkZoomScheduleConflict(tgl, jamMulai, jamSelesai) {
-  return gasRun('checkZoomScheduleConflict', { tgl, jamMulai, jamSelesai });
-}
-
-function getVehicleBooking(ticketId) {
-  return gasRun('getVehicleBooking', { ticketId });
-}
-
-function saveSubCategorySla(id, slaHari, currentUserRole) {
-  return gasRun('saveSubCategorySla', { id, slaHari, currentUserRole });
-}
-
-function exportTickets(type) {
-  return gasRun('exportTickets', { type });
-}
-
-function uploadTicketAttachment(base64Data, fileName, mimeType, ticketId) {
-  return gasRun('uploadTicketAttachment', { base64Data, fileName, mimeType, ticketId });
-}
-
-function saveTicketFieldFileDetail(ticketId, fieldName, fileUrl) {
-  return gasRun('saveTicketFieldFileDetail', { ticketId, fieldName, fileUrl });
-}
-
-function notifyAdminAttachments(ticketId, attachments) {
-  return gasRun('notifyAdminAttachments', { ticketId, attachments });
-}
-
-function sendMonthlyReport() {
-  return gasRun('sendMonthlyReport', {});
-}
-
-function getLobbyBookingsData() {
-  return gasRun('getLobbyBookingsData', {});
+function showError(msg) {
+  Swal.fire("Error", msg, "error");
 }
