@@ -3,7 +3,7 @@
 // ============================================================
 
 // WAJIB: Ganti dengan URL Web App Google Apps Script kamu
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpsybYHfC12mXTk7aJJn84SYl-LvN0hDctwYpuEMBcxWuyzZpKbpAa_H3uhzhxVJOM/exec';
 
 /**
  * Fungsi utama untuk memanggil API Apps Script
