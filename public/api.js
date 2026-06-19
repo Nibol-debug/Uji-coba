@@ -1,174 +1,241 @@
 // ============================================================
-// api.js — taruh di folder project Vercel
-// Ganti semua google.script.run dengan fungsi-fungsi ini
+// api.js — Bridge antara Frontend Vercel dan Backend Google Apps Script
 // ============================================================
 
-// WAJIB diisi dengan URL Apps Script /exec kamu
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxp9G6StnK_PFlg-ueATSd58GHQ6uxkztjId_IVzuyC6XI0-SPlLwOoyUvPkcngXoW/exec';
+// WAJIB: Ganti dengan URL Web App Google Apps Script kamu
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
 
 /**
- * Fungsi utama untuk call API Apps Script
+ * Fungsi utama untuk memanggil API Apps Script
  * Menggantikan google.script.run
  */
-async function gasRun(action, params) {
-  var body = Object.assign({ action: action }, params || {});
-
-  var response = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    // Apps Script tidak support preflight CORS, pakai text/plain agar no-preflight
-    body: JSON.stringify(body)
-  });
-
-  var text = await response.text();
+async function gasRun(action, params = {}) {
   try {
-    return JSON.parse(text);
-  } catch(e) {
-    throw new Error('Response bukan JSON: ' + text.substring(0, 200));
+    const body = {
+      action: action,
+      ...params
+    };
+
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'text/plain;charset=utf-8' 
+      },
+      body: JSON.stringify(body)
+    });
+
+    const text = await response.text();
+    
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('Response bukan JSON:', text.substring(0, 200));
+      throw new Error('Response dari server bukan format JSON yang valid');
+    }
+  } catch (error) {
+    console.error(`Error calling ${action}:`, error);
+    throw error;
   }
 }
 
 // ============================================================
-// WRAPPER FUNCTIONS — nama sama persis dengan sebelumnya
-// agar tidak perlu banyak ubah kode di Index.html
+// WRAPPER FUNCTIONS — Wrapper untuk setiap fungsi di Apps Script
 // ============================================================
 
-function loginUser(username, password) {
+// Authentication
+async function loginUser(username, password) {
   return gasRun('loginUser', { username, password });
 }
 
-function getDashboardData() {
+// Dashboard & Tickets
+async function getDashboardData() {
   return gasRun('getDashboardData', {});
 }
 
-function getCategories() {
+async function getCategories() {
   return gasRun('getCategories', {});
 }
 
-function getSubCategories() {
+async function getSubCategories() {
   return gasRun('getSubCategories', {});
 }
 
-function submitTicket(payload) {
+async function submitTicket(payload) {
   return gasRun('submitTicket', { payload });
 }
 
-function updateTicketStatus(id, newStatus, catatan, updaterName, idDriver, currentUserRole) {
-  return gasRun('updateTicketStatus', { id, newStatus, catatan, updaterName, idDriver, currentUserRole });
+async function updateTicketStatus(id, newStatus, catatan, updaterName, idDriver, currentUserRole) {
+  return gasRun('updateTicketStatus', { 
+    id, 
+    newStatus, 
+    catatan, 
+    updaterName, 
+    idDriver, 
+    currentUserRole 
+  });
 }
 
-function trackTicket(ticketId) {
+async function trackTicket(ticketId) {
   return gasRun('trackTicket', { ticketId });
 }
 
-function getTicketDetail(ticketId) {
+async function getTicketDetail(ticketId) {
   return gasRun('getTicketDetail', { ticketId });
 }
 
-function saveCategory(payload, currentUserRole) {
+// Categories Management
+async function saveCategory(payload, currentUserRole) {
   return gasRun('saveCategory', { payload, currentUserRole });
 }
 
-function saveSubCategory(payload, currentUserRole) {
+async function saveSubCategory(payload, currentUserRole) {
   return gasRun('saveSubCategory', { payload, currentUserRole });
 }
 
-function deleteSubCategory(id, currentUserRole) {
+async function deleteSubCategory(id, currentUserRole) {
   return gasRun('deleteSubCategory', { id, currentUserRole });
 }
 
-function getRequesters(currentUserRole) {
+// Users & Admins
+async function getRequesters(currentUserRole) {
   return gasRun('getRequesters', { currentUserRole });
 }
 
-function getAdminUsers(currentUserRole) {
+async function getAdminUsers(currentUserRole) {
   return gasRun('getAdminUsers', { currentUserRole });
 }
 
-function saveAdminUser(payload, currentUserRole) {
+async function saveAdminUser(payload, currentUserRole) {
   return gasRun('saveAdminUser', { payload, currentUserRole });
 }
 
-function deleteAdminUser(username, currentUserRole) {
+async function deleteAdminUser(username, currentUserRole) {
   return gasRun('deleteAdminUser', { username, currentUserRole });
 }
 
-function getConfig() {
+// Configuration
+async function getConfig() {
   return gasRun('getConfig', {});
 }
 
-function saveConfig(payload, currentUserRole) {
+async function saveConfig(payload, currentUserRole) {
   return gasRun('saveConfig', { payload, currentUserRole });
 }
 
-function getTicketFields(subKategori) {
+// Form Fields
+async function getTicketFields(subKategori) {
   return gasRun('getTicketFields', { subKategori });
 }
 
-function getFormSettings(filterUnit, filterKategori) {
+async function getFormSettings(filterUnit, filterKategori) {
   return gasRun('getFormSettings', { filterUnit, filterKategori });
 }
 
-function saveFormSetting(payload, adminName, currentUserRole) {
+async function saveFormSetting(payload, adminName, currentUserRole) {
   return gasRun('saveFormSetting', { payload, adminName, currentUserRole });
 }
 
-function deleteFormSetting(idSetting, adminName, currentUserRole) {
+async function deleteFormSetting(idSetting, adminName, currentUserRole) {
   return gasRun('deleteFormSetting', { idSetting, adminName, currentUserRole });
 }
 
-function getRoomsData() {
+// Rooms & Vehicles
+async function getRoomsData() {
   return gasRun('getRoomsData', {});
 }
 
-function getVehiclesData() {
+async function getVehiclesData() {
   return gasRun('getVehiclesData', {});
 }
 
-function getDriversData() {
+async function getDriversData() {
   return gasRun('getDriversData', {});
 }
 
-function checkScheduleConflict(idRuangan, tgl, jamMulai, jamSelesai) {
+async function checkScheduleConflict(idRuangan, tgl, jamMulai, jamSelesai) {
   return gasRun('checkScheduleConflict', { idRuangan, tgl, jamMulai, jamSelesai });
 }
 
-function checkVehicleConflict(idKendaraan, tgl, jamMulai, jamSelesai) {
+async function checkVehicleConflict(idKendaraan, tgl, jamMulai, jamSelesai) {
   return gasRun('checkVehicleConflict', { idKendaraan, tgl, jamMulai, jamSelesai });
 }
 
-function checkZoomScheduleConflict(tgl, jamMulai, jamSelesai) {
+async function checkZoomScheduleConflict(tgl, jamMulai, jamSelesai) {
   return gasRun('checkZoomScheduleConflict', { tgl, jamMulai, jamSelesai });
 }
 
-function getVehicleBooking(ticketId) {
+async function getVehicleBooking(ticketId) {
   return gasRun('getVehicleBooking', { ticketId });
 }
 
-function saveSubCategorySla(id, slaHari, currentUserRole) {
+// SLA Management
+async function saveSubCategorySla(id, slaHari, currentUserRole) {
   return gasRun('saveSubCategorySla', { id, slaHari, currentUserRole });
 }
 
-function exportTickets(type) {
+// Export & Attachments
+async function exportTickets(type) {
   return gasRun('exportTickets', { type });
 }
 
-function uploadTicketAttachment(base64Data, fileName, mimeType, ticketId) {
+async function uploadTicketAttachment(base64Data, fileName, mimeType, ticketId) {
   return gasRun('uploadTicketAttachment', { base64Data, fileName, mimeType, ticketId });
 }
 
-function saveTicketFieldFileDetail(ticketId, fieldName, fileUrl) {
+async function saveTicketFieldFileDetail(ticketId, fieldName, fileUrl) {
   return gasRun('saveTicketFieldFileDetail', { ticketId, fieldName, fileUrl });
 }
 
-function notifyAdminAttachments(ticketId, attachments) {
+async function notifyAdminAttachments(ticketId, attachments) {
   return gasRun('notifyAdminAttachments', { ticketId, attachments });
 }
 
-function sendMonthlyReport() {
+// Reports
+async function sendMonthlyReport() {
   return gasRun('sendMonthlyReport', {});
 }
 
-function getLobbyBookingsData() {
+// Lobby Display
+async function getLobbyBookingsData() {
   return gasRun('getLobbyBookingsData', {});
+}
+
+// Export semua fungsi agar bisa diakses global
+if (typeof window !== 'undefined') {
+  window.gasRun = gasRun;
+  window.loginUser = loginUser;
+  window.getDashboardData = getDashboardData;
+  window.getCategories = getCategories;
+  window.getSubCategories = getSubCategories;
+  window.submitTicket = submitTicket;
+  window.updateTicketStatus = updateTicketStatus;
+  window.trackTicket = trackTicket;
+  window.getTicketDetail = getTicketDetail;
+  window.saveCategory = saveCategory;
+  window.saveSubCategory = saveSubCategory;
+  window.deleteSubCategory = deleteSubCategory;
+  window.getRequesters = getRequesters;
+  window.getAdminUsers = getAdminUsers;
+  window.saveAdminUser = saveAdminUser;
+  window.deleteAdminUser = deleteAdminUser;
+  window.getConfig = getConfig;
+  window.saveConfig = saveConfig;
+  window.getTicketFields = getTicketFields;
+  window.getFormSettings = getFormSettings;
+  window.saveFormSetting = saveFormSetting;
+  window.deleteFormSetting = deleteFormSetting;
+  window.getRoomsData = getRoomsData;
+  window.getVehiclesData = getVehiclesData;
+  window.getDriversData = getDriversData;
+  window.checkScheduleConflict = checkScheduleConflict;
+  window.checkVehicleConflict = checkVehicleConflict;
+  window.checkZoomScheduleConflict = checkZoomScheduleConflict;
+  window.getVehicleBooking = getVehicleBooking;
+  window.saveSubCategorySla = saveSubCategorySla;
+  window.exportTickets = exportTickets;
+  window.uploadTicketAttachment = uploadTicketAttachment;
+  window.saveTicketFieldFileDetail = saveTicketFieldFileDetail;
+  window.notifyAdminAttachments = notifyAdminAttachments;
+  window.sendMonthlyReport = sendMonthlyReport;
+  window.getLobbyBookingsData = getLobbyBookingsData;
 }
