@@ -2002,7 +2002,20 @@
     var mockAdminUsers = [{ username: 'admin', fullname: 'Super Admin', role: 'Admin' }];
 
     // --- HELPERS ---
-    
+    fetch("https://script.google.com/macros/s/AKfycbxxx/exec", {
+  method: "POST",
+  body: JSON.stringify({
+    action: "loginUser",
+    username: u,
+    password: p
+  })
+})
+.then(res => res.json())
+.then(r => {
+  if (r.success) {
+    // sukses login
+  }
+})
 
     function showFullPageLoading(msg) {
       var loader = document.getElementById('fullPageLoader'); if (!loader) return;
@@ -5684,7 +5697,7 @@
         applyFormSettingFilters();
       } else {
         Promise.all([
-          gasRun('getFormSettings'),
+          ('getFormSettings'),
           gasRun('getSubCategories')
         ]).then(function (results) {
           dbFormSettings = results[0] || [];
@@ -5914,7 +5927,7 @@
       } else {
         var backendPayload = Object.assign({}, payload);
         if (!isEdit) backendPayload.id_setting = '';
-        gasRun('saveFormSetting', backendPayload, currentUser ? currentUser.fullname : 'Admin', currentUser ? currentUser.role : null).then(function (res) {
+        ('saveFormSetting', backendPayload, currentUser ? currentUser.fullname : 'Admin', currentUser ? currentUser.role : null).then(function (res) {
           hideFullPageLoading();
           if (res.success) {
             fetchFormSettings();
@@ -5956,7 +5969,7 @@
             Swal.fire({ icon: 'success', title: 'Berhasil Dihapus!', toast: true, position: 'bottom-end', showConfirmButton: false, timer: 1500 });
           }, 500);
         } else {
-          gasRun('deleteFormSetting', idSetting, currentUser ? currentUser.fullname : 'Admin', currentUser ? currentUser.role : null).then(function (res) {
+          ('deleteFormSetting', idSetting, currentUser ? currentUser.fullname : 'Admin', currentUser ? currentUser.role : null).then(function (res) {
             hideFullPageLoading();
             if (res.success) {
               fetchFormSettings();
@@ -6004,7 +6017,7 @@
       fetchConfig();
       checkLoginState();
       if (typeof google !== 'undefined') {
-        gasRun('getDashboardData').then(function (res) {
+        ('getDashboardData').then(function (res) {
           var tickets = res.tickets || [];
           tickets.forEach(function (tk) { cacheTicketIds.add(String(tk.ticket_id)); });
           isFirstPollLoad = false;
